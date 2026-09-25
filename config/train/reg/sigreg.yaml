@@ -1,0 +1,7 @@
+# @package loss.sigreg
+# SIGReg (characteristic-function / Epps-Pulley) — the LeWM baseline regularizer.
+name: sigreg
+weight: 0.09
+kwargs:
+  knots: 17
+  num_proj: 1024

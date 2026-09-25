@@ -11,7 +11,7 @@ import torch
 from lightning.pytorch.loggers import WandbLogger, CSVLogger
 from omegaconf import OmegaConf, open_dict
 
-from module import SlicedGaussianOT
+from module import SlicedGaussianOT, SIGReg
 from utils import get_column_normalizer, get_img_preprocessor, SaveCkptCallback
 from ot_merge import lejepa_ot_forward
 
@@ -19,8 +19,19 @@ from ot_merge import lejepa_ot_forward
 @hydra.main(version_base=None, config_path="./config/train", config_name="lewm")
 def run(cfg):
     pl.seed_everything(cfg.seed, workers=True)
-    if cfg.loss.sigreg.name != "sliced_ot":
-        raise ValueError(f"Unknown regularizer: {cfg.loss.sigreg.name}")
+
+    # Anti-collapse regularizer: WEMReg (sliced Gaussian OT) for the ATLAS arms,
+    # or SIGReg (LeWM's characteristic-function test) for the LeWM baseline arms.
+    reg_name = cfg.loss.sigreg.name
+    reg_kwargs = OmegaConf.to_container(cfg.loss.sigreg.kwargs, resolve=True)
+    if reg_name == "sliced_ot":
+        regularizer = SlicedGaussianOT(**reg_kwargs)
+    elif reg_name == "sigreg":
+        regularizer = SIGReg(**reg_kwargs)
+    else:
+        raise ValueError(
+            f"Unknown regularizer: {reg_name} (expected 'sliced_ot' or 'sigreg')"
+        )
 
     #########################
     ##       dataset       ##

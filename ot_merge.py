@@ -18,7 +18,10 @@ def ood_recovery_loss(emb, anchor):
 
 
 def lejepa_ot_forward(self, batch, stage, cfg):
-    """encode -> predict -> L_pred + lambda*SlicedGaussianOT + mu*L_ood."""
+    """encode -> predict -> L_pred + lambda*L_reg + mu*L_ood.
+
+    L_reg is the anti-collapse regularizer selected in train_ot.py:
+    SlicedGaussianOT (WEMReg, ATLAS arms) or SIGReg (LeWM baseline arms)."""
     ctx_len = cfg.history_size
     n_preds = cfg.num_preds
     lambd = cfg.loss.sigreg.weight
@@ -36,10 +39,10 @@ def lejepa_ot_forward(self, batch, stage, cfg):
     tgt_emb = emb[:, n_preds:]
     pred_emb = self.model.predict(ctx_emb, ctx_act)
 
-    # LeWM loss
+    # prediction loss + anti-collapse regularizer (WEMReg or SIGReg via self.sigreg)
     output["pred_loss"] = (pred_emb - tgt_emb).pow(2).mean()
-    output["sliced_ot_loss"] = self.sigreg(emb.transpose(0, 1))
-    output["loss"] = output["pred_loss"] + lambd * output["sliced_ot_loss"]
+    output["reg_loss"] = self.sigreg(emb.transpose(0, 1))
+    output["loss"] = output["pred_loss"] + lambd * output["reg_loss"]
 
     # ours: OOD-preserving relational distillation (no-op when mu == 0)
     if mu > 0.0:

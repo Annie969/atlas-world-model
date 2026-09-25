@@ -3,6 +3,7 @@ defaults:
   - launcher: local
   - data: pusht
   - model: lewm
+  - reg: sliced_ot   # anti-collapse regularizer: sliced_ot (WEMReg, ATLAS) or sigreg (LeWM)
 
 output_model_name: lewm
 subdir: ${hydra:job.id}
@@ -39,10 +40,7 @@ optimizer:
 num_preds: 1
 
 loss:
-  sigreg:
-    name: sliced_ot
-    weight: 3.0
-    kwargs:
-      num_proj: 1024
+  # loss.sigreg (the anti-collapse regularizer) comes from the `reg` config group:
+  #   reg=sliced_ot -> WEMReg (ATLAS arms);  reg=sigreg -> SIGReg (LeWM arms).
   ood:
-    weight: 0.0   # OOD-recovery term; 0.0 == baseline LeWM, >0 (e.g. 0.1) enables it
+    weight: 0.0   # OOD-recovery weight mu; 0.0 = off (baseline), 0.1 = enabled

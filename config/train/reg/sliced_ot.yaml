@@ -1,0 +1,6 @@
+# @package loss.sigreg
+# WEMReg (sliced Gaussian OT) — the ATLAS anti-collapse regularizer.
+name: sliced_ot
+weight: 3.0
+kwargs:
+  num_proj: 1024
