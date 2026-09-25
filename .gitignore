@@ -1,0 +1,46 @@
+# byte-compiled / caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# model weights / checkpoints (share code, not artifacts)
+*.pt
+*.ckpt
+*.pth
+checkpoints/
+outputs/
+runs/
+
+# experiment logs / results
+wandb/
+*.log
+*.out
+*.err
+lightning_logs/
+multirun/
+.hydra/
+
+# data (HDF5 datasets are large; users provide their own via STABLEWM_HOME)
+*.h5
+*.hdf5
+*.lance/
+datasets/
+
+# figures / scratch
+*.png
+*.pdf
+*.csv
+scratch/
+tmp/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+__pycache__/
+*.pyc
+.DS_Store
+runs/
+*.egg-info/
