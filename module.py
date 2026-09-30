@@ -9,7 +9,7 @@ def modulate(x, shift, scale):
     """AdaLN-zero modulation"""
     return x * (1 + scale) + shift
 
-class SlicedGaussianOT(torch.nn.Module):
+class WEMReg(torch.nn.Module):
     """Exact empirical 1-D W2 to continuous N(0,1).
 
     Input is [T,B,D]. For each time and direction independently, the B sorted
@@ -82,7 +82,7 @@ class SIGReg(torch.nn.Module):
     """Sketch Isotropic Gaussian Regularizer (characteristic-function / Epps-Pulley test).
 
     This is the LeWM baseline anti-collapse regularizer, used for the LeWM and LeWM+OOD
-    ablation arms (the ATLAS arms use ``SlicedGaussianOT`` instead). See LeJEPA / LeWM.
+    ablation arms (the ATLAS arms use ``WEMReg`` instead). See LeJEPA / LeWM.
     """
 
     def __init__(self, knots=17, num_proj=1024):

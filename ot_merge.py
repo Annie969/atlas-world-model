@@ -21,7 +21,7 @@ def lejepa_ot_forward(self, batch, stage, cfg):
     """encode -> predict -> L_pred + lambda*L_reg + mu*L_ood.
 
     L_reg is the anti-collapse regularizer selected in train_ot.py:
-    SlicedGaussianOT (WEMReg, ATLAS arms) or SIGReg (LeWM baseline arms)."""
+    WEMReg (ATLAS arms) or SIGReg (LeWM baseline arms)."""
     ctx_len = cfg.history_size
     n_preds = cfg.num_preds
     lambd = cfg.loss.sigreg.weight

@@ -21,7 +21,7 @@ L = L_pred + λ · L_WEMReg + μ · L_OOD
 
 - `L_pred`: next-step latent prediction loss.
 - `L_reg`: the anti-collapse regularizer, selected by the `reg` config group:
-  - `reg=sliced_ot` — **WEMReg**, an exact empirical one-dimensional squared Wasserstein
+  - `reg=wemreg` — **WEMReg**, an exact empirical one-dimensional squared Wasserstein
     distance to `N(0,1)` averaged over `1024` random projections (weight `λ = 3.0`). Used by ATLAS.
   - `reg=sigreg` — **SIGReg**, the LeWM baseline's characteristic-function (Epps–Pulley) test
     (weight `λ = 0.09`). Used by LeWM.
@@ -34,8 +34,8 @@ The two switches give the `2×2` ablation `{SIGReg, WEMReg} × {OOD off, on}`:
 |---|---|---|
 | **LeWM** (baseline) | `sigreg` | `0.0` |
 | LeWM + OOD | `sigreg` | `0.1` |
-| sliced-OT | `sliced_ot` | `0.0` |
-| **ATLAS** (ours) | `sliced_ot` | `0.1` |
+| WEMReg | `wemreg` | `0.0` |
+| **ATLAS** (ours) | `wemreg` | `0.1` |
 
 ## Setup
 
@@ -57,25 +57,25 @@ cosine schedule, training seed 3072.
 
 ## Train
 
-Train **LeWM** (`reg=sigreg`) and **ATLAS** (`reg=sliced_ot loss.ood.weight=0.1`) for each
+Train **LeWM** (`reg=sigreg`) and **ATLAS** (`reg=wemreg    loss.ood.weight=0.1`) for each
 task. Use `data=pusht`, `data=tworoom`, or `data=ogb` (OGBench-Cube).
 
 ```bash
 # PushT
 python train_ot.py data=pusht  reg=sigreg    loss.ood.weight=0.0 output_model_name=pusht_lewm  trainer.devices=1 wandb.enabled=false
-python train_ot.py data=pusht  reg=sliced_ot loss.ood.weight=0.1 output_model_name=pusht_atlas trainer.devices=1 wandb.enabled=false
+python train_ot.py data=pusht  reg=wemreg    loss.ood.weight=0.1 output_model_name=pusht_atlas trainer.devices=1 wandb.enabled=false
 
 # TwoRoom
 python train_ot.py data=tworoom reg=sigreg    loss.ood.weight=0.0 output_model_name=tworoom_lewm  trainer.devices=1 wandb.enabled=false
-python train_ot.py data=tworoom reg=sliced_ot loss.ood.weight=0.1 output_model_name=tworoom_atlas trainer.devices=1 wandb.enabled=false
+python train_ot.py data=tworoom reg=wemreg    loss.ood.weight=0.1 output_model_name=tworoom_atlas trainer.devices=1 wandb.enabled=false
 
 # OGBench-Cube
 python train_ot.py data=ogb    reg=sigreg    loss.ood.weight=0.0 output_model_name=cube_lewm  trainer.devices=1 wandb.enabled=false
-python train_ot.py data=ogb    reg=sliced_ot loss.ood.weight=0.1 output_model_name=cube_atlas trainer.devices=1 wandb.enabled=false
+python train_ot.py data=ogb    reg=wemreg    loss.ood.weight=0.1 output_model_name=cube_atlas trainer.devices=1 wandb.enabled=false
 ```
 
 For the other two ablation arms, use `reg=sigreg loss.ood.weight=0.1` (LeWM + OOD) and
-`reg=sliced_ot loss.ood.weight=0.0` (sliced-OT). Weights are written to
+`reg=wemreg loss.ood.weight=0.0` (WEMReg). Weights are written to
 `<cache>/checkpoints/<output_model_name>/weights_epoch_10.pt` alongside `config.json`.
 Train the full 10 epochs so the cosine schedule completes.
 
@@ -123,9 +123,9 @@ ID/OOD results.
 
 - `train_ot.py` — training entry point (`L_pred + λ·L_WEMReg + μ·L_OOD`).
 - `eval.py` — zero-shot CEM planning evaluation; saves per-episode successes.
-- `module.py` — `SlicedGaussianOT` (WEMReg) and `SIGReg` (LeWM baseline regularizer).
+- `module.py` — `WEMReg` (sliced Gaussian OT) and `SIGReg` (LeWM baseline regularizer).
 - `ot_merge.py` — objective assembly, including `ood_recovery_loss` (OOD-recovery).
-- `config/train/reg/` — the `sliced_ot` (WEMReg) and `sigreg` (LeWM) regularizer configs.
+- `config/train/reg/` — the `wemreg` (WEMReg) and `sigreg` (LeWM) regularizer configs.
 - `jepa.py`, `utils.py` — encoder/predictor model and shared utilities.
 - `config/` — Hydra training and evaluation configurations.
 - `idood/id_ood_split.py` — model-independent ID/OOD split.

@@ -11,7 +11,7 @@ import torch
 from lightning.pytorch.loggers import WandbLogger, CSVLogger
 from omegaconf import OmegaConf, open_dict
 
-from module import SlicedGaussianOT, SIGReg
+from module import WEMReg, SIGReg
 from utils import get_column_normalizer, get_img_preprocessor, SaveCkptCallback
 from ot_merge import lejepa_ot_forward
 
@@ -24,13 +24,13 @@ def run(cfg):
     # or SIGReg (LeWM's characteristic-function test) for the LeWM baseline arms.
     reg_name = cfg.loss.sigreg.name
     reg_kwargs = OmegaConf.to_container(cfg.loss.sigreg.kwargs, resolve=True)
-    if reg_name == "sliced_ot":
-        regularizer = SlicedGaussianOT(**reg_kwargs)
+    if reg_name == "wemreg":
+        regularizer = WEMReg(**reg_kwargs)
     elif reg_name == "sigreg":
         regularizer = SIGReg(**reg_kwargs)
     else:
         raise ValueError(
-            f"Unknown regularizer: {reg_name} (expected 'sliced_ot' or 'sigreg')"
+            f"Unknown regularizer: {reg_name} (expected 'wemreg' or 'sigreg')"
         )
 
     #########################
@@ -83,7 +83,7 @@ def run(cfg):
     data_module = spt.data.DataModule(train=train, val=val)
     world_model = spt.Module(
         model=world_model,
-        sigreg=SlicedGaussianOT(**cfg.loss.sigreg.kwargs),
+        sigreg=regularizer,
         forward=partial(lejepa_ot_forward, cfg=cfg),
         optim=optimizers,
     )
