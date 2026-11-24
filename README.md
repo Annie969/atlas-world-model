@@ -11,7 +11,7 @@ well-calibrated and preserves state-to-state geometry relevant to goal compariso
    pairwise-distance geometry to a stop-gradient patch-token anchor.
 
 This repository contains the code to reproduce the main planning-success results for
-**LeWM** and **ATLAS**, including the model-independent ID/OOD split.
+**LeWM** and **ATLAS**.
 
 ## Objective
 
@@ -103,26 +103,6 @@ Each run reports the overall `success_rate` and writes
 rows) next to the checkpoint. Repeat for `pusht_lewm` and for the TwoRoom / Cube / Reacher
 checkpoints with their config names.
 
-## ID/OOD split (reproduce the main figure)
-
-Split each condition's 200 episodes into in-distribution and out-of-distribution halves
-with a fixed, model-independent rule (median expert-path k-NN distance to a 50k
-training-state bank), then read off per-half success. Pass the per-seed `.npz` files that
-`eval.py` wrote:
-
-```bash
-python idood/id_ood_split.py --task pusht \
-  <cache>/checkpoints/pusht_atlas/episodes_seed42_off50.npz \
-  <cache>/checkpoints/pusht_atlas/episodes_seed43_off50.npz \
-  <cache>/checkpoints/pusht_atlas/episodes_seed44_off50.npz \
-  <cache>/checkpoints/pusht_atlas/episodes_seed45_off50.npz \
-  <cache>/checkpoints/pusht_atlas/episodes_seed46_off50.npz
-```
-
-This prints ID and OOD success per seed and the mean ± std over seeds. Running it for the
-LeWM and ATLAS checkpoints of each task (`--task` is `pusht`, `tworoom`, `cube`, or
-`reacher`) reproduces the LeWM and ATLAS entries of the main ID/OOD results.
-
 ## Files
 
 - `train_ot.py` — training entry point (`L_pred + λ·L_WEMReg + μ·L_RD`).
@@ -132,6 +112,5 @@ LeWM and ATLAS checkpoints of each task (`--task` is `pusht`, `tworoom`, `cube`,
 - `config/train/reg/` — the `wemreg` (WEMReg) and `sigreg` (LeWM) regularizer configs.
 - `jepa.py`, `utils.py` — encoder/predictor model and shared utilities.
 - `config/` — Hydra training and evaluation configurations.
-- `idood/id_ood_split.py` — model-independent ID/OOD split.
 </content>
 </invoke>
