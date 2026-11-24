@@ -34,6 +34,7 @@ TASK_CFG = {
     "pusht": dict(h5="pusht_expert_train.h5", keys=["state"]),
     "tworoom": dict(h5="tworoom.h5", keys=["pos_agent", "pos_target"]),
     "cube": dict(h5="cube_single_expert.h5", keys=["observation"]),
+    "reacher": dict(h5="reacher.h5", keys=["qpos", "target_pos"]),
 }
 
 BANK_SIZE = 50_000

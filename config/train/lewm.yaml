@@ -17,9 +17,9 @@ history_size: ${oc.select:data.history_size,3}
 
 trainer:
   max_epochs: 10          # fixed budget across all tasks; train to completion (cosine LR
-                          # anneals to 0 at max_epochs — the low-LR tail is needed by L_ood).
+                          # anneals to 0 at max_epochs — the low-LR tail is needed by L_RD).
                           # Do NOT early-stop: stopping before the anneal completes leaves LR
-                          # high and degrades the OOD/OT terms.
+                          # high and degrades the RD/WEMReg terms.
   devices: auto
   accelerator: gpu
   precision: bf16
@@ -42,5 +42,5 @@ num_preds: 1
 loss:
   # loss.sigreg (the anti-collapse regularizer) comes from the `reg` config group:
   #   reg=wemreg -> WEMReg (ATLAS arms);  reg=sigreg -> SIGReg (LeWM arms).
-  ood:
-    weight: 0.0   # OOD-recovery weight mu; 0.0 = off (baseline), 0.1 = enabled
+  rd:
+    weight: 0.0   # relational-distillation weight mu; 0.0 = off (baseline), 0.1 = enabled

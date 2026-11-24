@@ -81,7 +81,7 @@ class WEMReg(torch.nn.Module):
 class SIGReg(torch.nn.Module):
     """Sketch Isotropic Gaussian Regularizer (characteristic-function / Epps-Pulley test).
 
-    This is the LeWM baseline anti-collapse regularizer, used for the LeWM and LeWM+OOD
+    This is the LeWM baseline anti-collapse regularizer, used for the LeWM and LeWM+RD
     ablation arms (the ATLAS arms use ``WEMReg`` instead). See LeJEPA / LeWM.
     """
 

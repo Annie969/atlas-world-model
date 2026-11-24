@@ -9,23 +9,23 @@ def _norm_pdist(x):
     return d / (d.mean() + 1e-6)
 
 
-def ood_recovery_loss(emb, anchor):
-    """L_ood: make emb's pairwise geometry match the OOD-rich anchor's (stop-grad).
-    emb, anchor: (B, T, D)."""
+def relational_distillation_loss(emb, anchor):
+    """L_RD: relational distillation -- match emb's pairwise geometry to the
+    (stop-grad) patch-token anchor's. emb, anchor: (B, T, D)."""
     e = emb.reshape(-1, emb.size(-1))
     a = anchor.reshape(-1, anchor.size(-1)).detach()
     return (_norm_pdist(e) - _norm_pdist(a)).pow(2).mean()
 
 
 def lejepa_ot_forward(self, batch, stage, cfg):
-    """encode -> predict -> L_pred + lambda*L_reg + mu*L_ood.
+    """encode -> predict -> L_pred + lambda*L_reg + mu*L_RD.
 
     L_reg is the anti-collapse regularizer selected in train_ot.py:
     WEMReg (ATLAS arms) or SIGReg (LeWM baseline arms)."""
     ctx_len = cfg.history_size
     n_preds = cfg.num_preds
     lambd = cfg.loss.sigreg.weight
-    mu = float(cfg.loss.get("ood", {}).get("weight", 0.0))
+    mu = float(cfg.loss.get("rd", {}).get("weight", 0.0))
 
     batch["action"] = torch.nan_to_num(batch["action"], 0.0)
 
@@ -44,10 +44,11 @@ def lejepa_ot_forward(self, batch, stage, cfg):
     output["reg_loss"] = self.sigreg(emb.transpose(0, 1))
     output["loss"] = output["pred_loss"] + lambd * output["reg_loss"]
 
-    # ours: OOD-preserving relational distillation (no-op when mu == 0)
+    # relational distillation: transfer patch-anchor geometry to the planning latent
+    # (no-op when mu == 0)
     if mu > 0.0:
-        output["ood_loss"] = ood_recovery_loss(emb, output["patch_emb"])
-        output["loss"] = output["loss"] + mu * output["ood_loss"]
+        output["rd_loss"] = relational_distillation_loss(emb, output["patch_emb"])
+        output["loss"] = output["loss"] + mu * output["rd_loss"]
 
     # Persist each scalar loss term through the logger.
     losses_dict = {

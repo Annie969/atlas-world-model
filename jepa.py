@@ -38,8 +38,8 @@ class JEPA(nn.Module):
         pixels_emb = output.last_hidden_state[:, 0]  # cls token
         emb = self.projector(pixels_emb)
         info["emb"] = rearrange(emb, "(b t) d -> b t d", b=b)
-        # OOD-rich anchor for the OOD-recovery term: final-layer patch tokens, mean-pooled.
-        # Empirically (ood_layer_probe) this retains failure/OOD signal that Gaussian regularization can strip from `emb`.
+        # Relational anchor for the relational-distillation (RD) term: final-layer patch tokens, mean-pooled.
+        # Empirically this retains failure/novelty-related structure that Gaussian regularization can strip from `emb`.
         patch_emb = output.last_hidden_state[:, 1:].mean(1)
         info["patch_emb"] = rearrange(patch_emb, "(b t) d -> b t d", b=b)
 
