@@ -15,7 +15,7 @@ Usage:
     # the checkpoint, pass one .npz per seed:
     python idood/id_ood_split.py --task pusht \\
         checkpoints/pusht_atlas/episodes_seed42_off50.npz \\
-        checkpoints/pusht_atlas/episodes_seed43_off50.npz ...
+        checkpoints/pusht_atlas/episodes_seed43_off50.npz ....
 
 The dataset is located via LOCAL_DATASET_DIR or STABLEWM_HOME (a root that contains the
 task's HDF5 file, directly or under datasets/); falls back to ~/.stable_worldmodel.
